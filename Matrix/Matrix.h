@@ -16,6 +16,7 @@ class Matrix
 		Matrix(const Matrix& M);
 		double* getOneColumn(int& c) const;
 		Matrix LUDecomp() const;
+		Matrix LUPDecomp(int& p) const;
 		void swapRows(int& r1, int& r2);
 		Matrix cutMatrix(int& column, int& row) const;
 		Matrix selfcutMatrix(int& column, int& row);

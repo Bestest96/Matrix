@@ -21,6 +21,7 @@ void help()
 	cout << "M2 - operacja na macierzy nr 2" << endl << endl;
 	cout << "Komendy c2:" << endl;
 	cout << "fill, wypelnij - pozwala wpisac dane do wskazanej macierzy" << endl;
+	cout << "randomize, losuj - wypelnia macierz losowymi liczbami calk. z zakresu <0, 100>" << endl;
 	cout << "+,add,dodaj - dodaje wskazana macierz do drugiej" << endl;
 	cout << "-,subtract,odejmij - odejmuje od wskazanej macierzy druga" << endl;
 	cout << "*,multiplicate,pomnoz - mnozy wskazana macierz przez druga" << endl;
