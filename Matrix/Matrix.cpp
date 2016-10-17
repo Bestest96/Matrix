@@ -220,15 +220,20 @@ void Matrix::insertColumnVector(const double* X, int& c)
 
 double* Matrix::solveEq(double* R) const
 {
+	int p = 0;
 	Matrix LU;
 	try
 	{
-		LU = LUDecomp();
+		LU = LUPDecomp(p);
 	}
 	catch (MyException e)
 	{
 		delete R;
 		throw;
+	}
+	catch (double& d)
+	{
+		cout << "Wyznacznik macierzy wynosi " << d << ", zatem istnieje oo wiele rozw. lub nie istnieje zadne rozwiazanie" << endl;
 	}
 	double* X = new double[columns];
 	double sum = 0;
@@ -287,8 +292,26 @@ Matrix Matrix::LUDecomp() const
 	if (columns != rows)
 		throw MyException("Blad - nie podano macierzy kwadratowej");
 	Matrix LU = *this;
-	int permutations = 0;
 	for (int i = 0;i < columns - 1;i++)
+	{
+		if (LU.elements[i][i] == 0)
+			throw MyException("Blad - wystapi dzielenie przez 0");
+		for (int j = i + 1;j < columns;j++)
+			LU.elements[j][i] /= LU.elements[i][i];
+		for (int j = i + 1;j < columns;j++)
+			for (int k = i + 1;k < columns;k++)
+				LU.elements[j][k] -= LU.elements[j][i] * LU.elements[i][k];
+	}
+	return LU;
+}
+
+Matrix Matrix::LUPDecomp(int& p) const
+{
+	if (columns != rows)
+		throw MyException("Blad - nie podano macierzy kwadratowej");
+	Matrix LU = *this;
+	p = 0;
+	for (int i = 0; i < columns - 1; i++)
 	{
 		double maxrowvalue = elements[i][i];
 		int maxrow = i;
@@ -303,14 +326,14 @@ Matrix Matrix::LUDecomp() const
 		if (maxrow != i)
 		{
 			LU.swapRows(i, maxrow);
-			permutations++;
+			p++;
 		}
 		if (LU.elements[i][i] == 0)
-			throw MyException("Blad - wystapi dzielenie przez 0");
-		for (int j = i + 1;j < columns;j++)
+			throw 0.0;
+		for (int j = i + 1; j < columns; j++)
 			LU.elements[j][i] /= LU.elements[i][i];
-		for (int j = i + 1;j < columns;j++)
-			for (int k = i + 1;k < columns;k++)
+		for (int j = i + 1; j < columns; j++)
+			for (int k = i + 1; k < columns; k++)
 				LU.elements[j][k] -= LU.elements[j][i] * LU.elements[i][k];
 	}
 	return LU;
@@ -318,12 +341,20 @@ Matrix Matrix::LUDecomp() const
 
 double Matrix::LUdeterminant() const
 {
-	if (columns != rows)
-		throw MyException("Blad - nie podano macierzy kwadratowej");
-	Matrix LU = LUDecomp();
+	int permutations = 0;
+	Matrix LU;
+	try
+	{
+		LU = LUPDecomp(permutations);
+	}
+	catch (double& d)
+	{
+		return d;
+	}
 	double determinant = LU.elements[0][0];
 	for (int i = 1;i < columns;i++)
 		determinant *= LU.elements[i][i];
+	determinant *= pow(-1, permutations);
 	return determinant;
 }
 
